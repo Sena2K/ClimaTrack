@@ -3,6 +3,10 @@ import json
 import time
 import os
 
+# Cria a pasta "dados_climaticos" para salvar os arquivos JSON, se não existir
+if not os.path.exists("dados_climaticos"):
+    os.makedirs("dados_climaticos")
+
 # Dicionário com as 27 capitais do Brasil e seus respectivos IDs de estações meteorológicas
 capitais = {
     "São Paulo": "83779",
@@ -34,7 +38,6 @@ capitais = {
     "Vitória": "83648"
 }
 
-
 # Função para obter dados climáticos por hora de uma estação
 def get_weather_data(station_id, start_date, end_date, tz):
     url = f"https://d.meteostat.net/app/proxy/stations/hourly?station={station_id}&tz={tz}&start={start_date}&end={end_date}"
@@ -49,6 +52,12 @@ def get_weather_data(station_id, start_date, end_date, tz):
     else:
         return None
 
+# Função para salvar os dados de cada capital em arquivos separados dentro do mês
+def save_city_weather_data(month, city, data):
+    filename = f"dados_climaticos/{month}_{city}.json"
+    with open(filename, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+    print(f"Dados de {city} para o mês {month} salvos em {filename}")
 
 # Função para gerar o intervalo de datas de cada mês
 def generate_date_ranges():
@@ -64,32 +73,17 @@ def generate_date_ranges():
     ]
     return date_ranges
 
-
-# Função para salvar os dados em um arquivo JSON por mês
-def save_weather_data_to_json(month, data):
-    # Cria um diretório para salvar os arquivos, se não existir
-    if not os.path.exists('dados_climaticos'):
-        os.makedirs('dados_climaticos')
-
-    filename = f"dados_climaticos/clima_{month}.json"
-    with open(filename, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)  # Adiciona ensure_ascii=False
-    print(f"Dados de {month} salvos em {filename}")
-
-
 # Laço para iterar sobre as capitais e buscar dados de cada mês
 date_ranges = generate_date_ranges()
 
 for start_date, end_date in date_ranges:
-    all_data_for_month = {}
+    month = start_date[:7]  # Extrai o mês (YYYY-MM)
+
     for capital, station_id in capitais.items():
         tz = "America/Sao_Paulo"  # Pode ajustar a timezone conforme necessário
         data = get_weather_data(station_id, start_date, end_date, tz)
         if data and "data" in data:
-            all_data_for_month[capital] = data["data"]  # Adiciona os dados da capital ao dicionário
+            save_city_weather_data(month, capital, data["data"])  # Salva os dados de cada cidade em arquivos separados
         else:
             print(f"Erro ao buscar dados de {capital} para o período {start_date} a {end_date}")
 
-    # Salva todos os dados coletados no mês
-    month_name = start_date.split("-")[1]  # Extrai o nome do mês
-    save_weather_data_to_json(month_name, all_data_for_month)
