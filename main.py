@@ -39,17 +39,15 @@ capitais = {
     "Vitória": "83648"
 }
 
-
 # Configura a conexão com o banco de dados PostgreSQL
 def connect_to_postgresql():
     conn = psycopg2.connect(
         host="localhost",
         database="ClimaDB",
         user="postgres",
-        password="segredonevida"
+        password="---"
     )
     return conn
-
 
 # Insere os dados de cada cidade no banco de dados
 def insert_weather_data_to_db(conn, city, data):
@@ -82,7 +80,6 @@ def insert_weather_data_to_db(conn, city, data):
     finally:
         cursor.close()
 
-
 # Função para obter dados climáticos por hora de uma estação
 def get_weather_data(station_id, start_date, end_date, tz):
     url = f"https://d.meteostat.net/app/proxy/stations/hourly?station={station_id}&tz={tz}&start={start_date}&end={end_date}"
@@ -98,14 +95,12 @@ def get_weather_data(station_id, start_date, end_date, tz):
         print(f"Erro na requisição para estação {station_id}: {response.status_code}")
         return None
 
-
 # Função para salvar os dados de cada capital em arquivos separados dentro do mês
 def save_city_weather_data(month, city, data):
     filename = f"dados_climaticos/{month}_{city}.json"
     with open(filename, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
     print(f"Dados de {city} para o mês {month} salvos em {filename}")
-
 
 # Função para gerar o intervalo de datas de cada mês
 def generate_date_ranges():
@@ -120,7 +115,6 @@ def generate_date_ranges():
         ("2024-08-01", "2024-08-31")
     ]
     return date_ranges
-
 
 # Conectar ao banco de dados PostgreSQL
 conn = connect_to_postgresql()
@@ -142,7 +136,6 @@ for start_date, end_date in date_ranges:
             insert_weather_data_to_db(conn, capital, data["data"])
         else:
             print(f"Erro ao buscar dados de {capital} para o período {start_date} a {end_date}")
-
 
 # Fechar a conexão ao banco de dados
 conn.close()
