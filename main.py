@@ -4,11 +4,10 @@ import time
 import os
 import psycopg2
 
-# Cria a pasta "dados_climaticos" para salvar os arquivos JSON, se não existir
 if not os.path.exists("dados_climaticos"):
     os.makedirs("dados_climaticos")
 
-# Dicionário com as 27 capitais do Brasil e seus respectivos IDs de estações meteorológicas
+
 capitais = {
     "São Paulo": "83779",
     "Rio de Janeiro": "83755",
@@ -80,7 +79,7 @@ def insert_weather_data_to_db(conn, city, data):
     finally:
         cursor.close()
 
-# Função para obter dados climáticos por hora de uma estação
+# Função para obter dados climáticos por hora
 def get_weather_data(station_id, start_date, end_date, tz):
     url = f"https://d.meteostat.net/app/proxy/stations/hourly?station={station_id}&tz={tz}&start={start_date}&end={end_date}"
     headers = {
